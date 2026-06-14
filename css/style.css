@@ -1,0 +1,23 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  background: #10121c;
+  height: 100%;
+  overflow: hidden;
+}
+#frame {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+#game {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  width: min(100vw, calc(100vh * 640 / 576));
+  height: auto;
+  aspect-ratio: 640 / 576;
+  box-shadow: 0 0 60px rgba(80, 120, 255, 0.25);
+  border-radius: 4px;
+  background: #000;
+}

@@ -1,0 +1,8 @@
+# ログ・キャッシュ・撮影中間ファイル
+*.log
+__pycache__/
+docs/screenshots/evo_*.png
+docs/screenshots/atk_*.png
+docs/screenshots/__*.png
+.DS_Store
+Thumbs.db

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><title>tileset viewer</title></head>
+<body style="background:#222">
+<canvas id="sheet"></canvas>
+<script>
+// タイルセットの領域を拡大表示して /snap へPOST
+// ?x=0&y=0&w=16&h=16&z=3  (タイル単位)
+var q = new URLSearchParams(location.search);
+var tx = parseInt(q.get("x") || "0", 10);
+var ty = parseInt(q.get("y") || "0", 10);
+var tw = parseInt(q.get("w") || "16", 10);
+var th = parseInt(q.get("h") || "16", 10);
+var z = parseFloat(q.get("z") || "3");
+
+var c = document.getElementById("sheet");
+var img = new Image();
+img.onload = function () {
+  var cell = 16 * z;
+  c.width = tw * cell + 40;
+  c.height = th * cell + 40;
+  var x2 = c.getContext("2d");
+  x2.fillStyle = "#181c20";
+  x2.fillRect(0, 0, c.width, c.height);
+  x2.imageSmoothingEnabled = false;
+  x2.drawImage(img, tx * 16, ty * 16, tw * 16, th * 16, 40, 40, tw * cell, th * cell);
+  x2.strokeStyle = "rgba(255,255,255,0.25)";
+  x2.fillStyle = "#ffd95e";
+  x2.font = "bold 13px sans-serif";
+  for (var i = 0; i <= tw; i++) {
+    x2.beginPath(); x2.moveTo(40 + i * cell, 40); x2.lineTo(40 + i * cell, c.height); x2.stroke();
+    if (i % 2 === 0 && i < tw) x2.fillText(tx + i, 42 + i * cell, 30);
+  }
+  for (var j = 0; j <= th; j++) {
+    x2.beginPath(); x2.moveTo(40, 40 + j * cell); x2.lineTo(c.width, 40 + j * cell); x2.stroke();
+    if (j % 2 === 0 && j < th) x2.fillText(ty + j, 4, 54 + j * cell);
+  }
+  fetch("http://localhost:8766/snap", { method: "POST", mode: "no-cors", body: c.toDataURL("image/png") })
+    .then(function(){ document.title = "DONE"; });
+};
+img.src = q.get("img") || "../assets/gm/tilesets/limbusdev_world2.png";
+</script>
+</body>
+</html>
