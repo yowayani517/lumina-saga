@@ -246,7 +246,8 @@ var SpriteLib = (function () {
     }
     var col = dashing ? 5 + (animFrame % 3) : (animFrame % 4);
     var row = DIR_ROW[dir] || 0;
-    c.drawImage(img, col * 16, row * 32, 16, 32, px, py - TILE, TILE, TILE * 2);
+    // PixelLab生成シート: セル32x64 (歩き=列0-3 / 走り=列5-7)
+    c.drawImage(img, col * 32, row * 64, 32, 64, px, py - TILE, TILE, TILE * 2);
   }
 
   // NPC: 服(青)の色相だけ置換して種類を作る。肌・髪は維持
