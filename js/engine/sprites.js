@@ -325,15 +325,26 @@ var SpriteLib = (function () {
     return c;
   }
 
+  // NPC名 -> 使用する生成済みシート画像キー (未生成の種類は既存のnpc_manなどに寄せる)
+  var NPC_IMG_ALIAS = {
+    clerk: "man", nurse: "girl"
+  };
   function drawNPCImg(c, name, px, py, dir) {
-    var sheet = npcSheet(name);
-    if (!sheet) {
-      var sc = npcCanvas(name);
-      c.drawImage(sc, px, py - 8, 32, 40);
+    var imgKey = "npc_" + (NPC_IMG_ALIAS[name] || name);
+    var img = images[imgKey];
+    if (!img) {
+      var sheet = npcSheet(name);
+      if (!sheet) {
+        var sc = npcCanvas(name);
+        c.drawImage(sc, px, py - 8, 32, 40);
+        return;
+      }
+      var row0 = DIR_ROW[dir || "down"] || 0;
+      c.drawImage(sheet, 0, row0 * 32, 16, 32, px, py - TILE, TILE, TILE * 2);
       return;
     }
     var row = DIR_ROW[dir || "down"] || 0;
-    c.drawImage(sheet, 0, row * 32, 16, 32, px, py - TILE, TILE, TILE * 2);
+    c.drawImage(img, 0, row * 64, 32, 64, px, py - TILE, TILE, TILE * 2);
   }
 
   // ---------- モンスター (Guardian Monsters 画像スプライト) ----------

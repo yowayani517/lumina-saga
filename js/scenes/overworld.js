@@ -359,41 +359,51 @@ OverworldScene.prototype.draw = function (c) {
     }
   }
 
-  // NPC
+  // NPC + プレイヤー を足元Y座標でソートして描画 (Y-sort: 奥行きが正しく重なるように)
   c.imageSmoothingEnabled = false;
   var npcs = map.npcs || [];
+  var drawables = [];
   for (var i = 0; i < npcs.length; i++) {
     var n = npcs[i];
     if (!this.npcVisible(n)) continue;
     var nx = n.x * TILE - camX, ny = n.y * TILE - camY;
     if (nx < -TILE || ny < -TILE || nx > G.W || ny > G.H) continue;
-    if (n.monster) {
+    drawables.push({ y: n.y, nx: nx, ny: ny, n: n });
+  }
+  var animFrame = this.moving ? Math.floor(this.walkFrame) : 0;
+  var hx = Math.round(px * TILE - camX), hy = Math.round(py * TILE - camY);
+  drawables.push({ y: py, hero: true, hx: hx, hy: hy });
+  drawables.sort(function (a, b) { return a.y - b.y; });
+
+  for (var j = 0; j < drawables.length; j++) {
+    var dr = drawables[j];
+    if (dr.hero) {
+      SpriteLib.drawHero(c, Game.dir, animFrame, this.moving && this.dashing, dr.hx, dr.hy);
+      continue;
+    }
+    var n2 = dr.n, nx2 = dr.nx, ny2 = dr.ny;
+    if (n2.monster) {
       // シンボルエンカウント: モンスターが その場に いる (ふわふわ + ひかり)
-      var mcv = SpriteLib.monsterCanvas(n.monster);
+      var mcv = SpriteLib.monsterCanvas(n2.monster);
       var bobY = Math.sin(f * 0.06) * 4;
       var glow = 0.25 + Math.abs(Math.sin(f * 0.04)) * 0.3;
       c.save();
       c.globalAlpha = glow;
       c.fillStyle = "#cfe8ff";
       c.beginPath();
-      c.ellipse(nx + 16, ny + 30, 26, 9, 0, 0, 7);
+      c.ellipse(nx2 + 16, ny2 + 30, 26, 9, 0, 0, 7);
       c.fill();
       c.restore();
-      c.drawImage(mcv, nx - 14, ny - 28 + bobY, 60, 60);
-    } else if (n.sprite === "ball") {
-      SpriteLib.drawBall(c, nx, ny);
-    } else if (n.sprite === "sign") {
+      c.drawImage(mcv, nx2 - 14, ny2 - 28 + bobY, 60, 60);
+    } else if (n2.sprite === "ball") {
+      SpriteLib.drawBall(c, nx2, ny2);
+    } else if (n2.sprite === "sign") {
       var sg = SpriteLib.npcCanvas("sign");
-      c.drawImage(sg, 0, 0, 16, 16, nx, ny - 8, 32, 40);
+      c.drawImage(sg, 0, 0, 16, 16, nx2, ny2 - 8, 32, 40);
     } else {
-      SpriteLib.drawNPCImg(c, n.sprite || "man", nx, ny, n.dir);
+      SpriteLib.drawNPCImg(c, n2.sprite || "man", nx2, ny2, n2.dir);
     }
   }
-
-  // プレイヤー
-  var animFrame = this.moving ? Math.floor(this.walkFrame) : 0;
-  var hx = Math.round(px * TILE - camX), hy = Math.round(py * TILE - camY);
-  SpriteLib.drawHero(c, Game.dir, animFrame, this.moving && this.dashing, hx, hy);
 
   // マップ名(入って数秒)
   if (!this._nameT) this._nameT = {};
