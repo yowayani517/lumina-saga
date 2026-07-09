@@ -1,6 +1,9 @@
 # ログ・キャッシュ・撮影中間ファイル
 *.log
 __pycache__/
+# APIキー・生成の下書き（本番差し替え前のレビュー用）
+.env
+assets/gen/
 docs/screenshots/evo_*.png
 docs/screenshots/atk_*.png
 docs/screenshots/__*.png
