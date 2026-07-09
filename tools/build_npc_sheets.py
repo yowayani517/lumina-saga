@@ -23,7 +23,7 @@ def find_rotations_dir(key):
     return hits[0]
 
 
-def build_one(key):
+def build_one(key, scale=1.0):
     rdir = find_rotations_dir(key)
     frames = {}
     bbox = None
@@ -37,7 +37,8 @@ def build_one(key):
                 max(bbox[2], b[2]), max(bbox[3], b[3]))
     l, t, r, btm = bbox
     w, h = r - l, btm - t
-    s = min(CW / w, CH / h)
+    # 元素材から1回だけ縮小（scaleで一回り小さくもできる。多重リサンプルによる潰れを防ぐ）
+    s = min(CW / w, CH / h) * scale
     nw, nh = max(1, round(w * s)), max(1, round(h * s))
 
     sheet = Image.new("RGBA", (CW, CH * 4), (0, 0, 0, 0))
@@ -56,7 +57,12 @@ def build_one(key):
 if __name__ == "__main__":
     import sys
     default_keys = ["prof", "rival", "oldman", "oldwoman", "girl", "woman", "boy", "man"]
-    keys = sys.argv[1:] or default_keys
+    # 引数は "key" または "key:scale"（例: girl:0.82）で指定
+    args = sys.argv[1:] or default_keys
     os.makedirs(OUT_DIR, exist_ok=True)
-    for k in keys:
-        build_one(k)
+    for a in args:
+        if ":" in a:
+            k, sc = a.split(":", 1)
+            build_one(k, float(sc))
+        else:
+            build_one(a)
