@@ -327,7 +327,7 @@ var SpriteLib = (function () {
 
   // NPC名 -> 使用する生成済みシート画像キー (未生成の種類は既存のnpc_manなどに寄せる)
   var NPC_IMG_ALIAS = {
-    clerk: "man", nurse: "girl"
+    clerk: "man"
   };
   function drawNPCImg(c, name, px, py, dir) {
     var imgKey = "npc_" + (NPC_IMG_ALIAS[name] || name);

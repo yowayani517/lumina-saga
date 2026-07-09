@@ -17,7 +17,7 @@ Object.keys(MONSTERS).forEach(function (id) {
 entries.push(["tileset", "assets/gm/tilesets/limbusdev_world2.png"]);
 entries.push(["hero", "assets/people/hero.png"]);
 entries.push(["npcsheet", "assets/people/npc.png"]);
-["prof", "rival", "oldman", "oldwoman", "woman", "boy", "man", "champ", "leader1", "leader2", "leader3"].forEach(function (k) {
+["prof", "rival", "oldman", "oldwoman", "woman", "boy", "man", "champ", "leader1", "leader2", "leader3", "nurse", "girl"].forEach(function (k) {
   entries.push(["npc_" + k, "assets/people/npc_" + k + ".png"]);
 });
 ["prof", "rival", "leader1", "leader2", "leader3", "champ"].forEach(function (k) {
