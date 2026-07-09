@@ -54,7 +54,9 @@ def build_one(key):
 
 
 if __name__ == "__main__":
-    keys = ["prof", "rival", "oldman", "oldwoman", "girl", "woman", "boy", "man"]
+    import sys
+    default_keys = ["prof", "rival", "oldman", "oldwoman", "girl", "woman", "boy", "man"]
+    keys = sys.argv[1:] or default_keys
     os.makedirs(OUT_DIR, exist_ok=True)
     for k in keys:
         build_one(k)

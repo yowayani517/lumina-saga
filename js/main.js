@@ -27,7 +27,7 @@ window.addEventListener("load", function () {
   manifest.push(["tileset", "assets/gm/tilesets/limbusdev_world2.png"]);
   manifest.push(["hero", "assets/people/hero.png"]);
   manifest.push(["npcsheet", "assets/people/npc.png"]);
-  ["prof", "rival", "oldman", "oldwoman", "girl", "woman", "boy", "man"].forEach(function (k) {
+  ["prof", "rival", "oldman", "oldwoman", "woman", "boy", "man", "champ", "leader1", "leader2", "leader3"].forEach(function (k) {
     manifest.push(["npc_" + k, "assets/people/npc_" + k + ".png"]);
   });
   ["prof", "rival", "leader1", "leader2", "leader3", "champ"].forEach(function (k) {
