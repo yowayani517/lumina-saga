@@ -25,7 +25,23 @@ import json
 import urllib.request
 
 BASE = "https://api.pixellab.ai/v2"
-TOKEN = os.environ.get("PIXELLAB_TOKEN", "")
+
+
+def _load_token():
+    tok = os.environ.get("PIXELLAB_TOKEN", "")
+    if tok:
+        return tok
+    # リポジトリ直下の .env から読む（.gitignore済み）
+    env_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), ".env")
+    if os.path.exists(env_path):
+        for line in open(env_path, encoding="utf-8"):
+            line = line.strip()
+            if line.startswith("PIXELLAB_TOKEN="):
+                return line.split("=", 1)[1].strip().strip('"').strip("'")
+    return ""
+
+
+TOKEN = _load_token()
 
 
 def _post(path, payload):
