@@ -14,7 +14,7 @@ Object.keys(MONSTERS).forEach(function (id) {
 ["grass", "forest", "cave"].forEach(function (b) {
   entries.push(["bg_" + b, "assets/gm/backdrops/" + b + ".png"]);
 });
-entries.push(["tileset", "assets/gm/tilesets/limbusdev_world2.png"]);
+entries.push(["tileset", "assets/ai/tilesets/world_ai.png"]);
 entries.push(["hero", "assets/people/hero.png"]);
 entries.push(["npcsheet", "assets/people/npc.png"]);
 ["prof", "rival", "oldman", "oldwoman", "woman", "boy", "man", "champ", "leader1", "leader2", "leader3", "nurse", "girl"].forEach(function (k) {

@@ -658,29 +658,29 @@ var SpriteLib = (function () {
 
   var WALKABLE = { ".": 1, ",": 1, "G": 1, "P": 1, "S": 1, "C": 1, "_": 1, "m": 1, "D": 1, "E": 1 };
 
-  // タイルセット(Guardian Monsters limbusdev_world2)の座標マップ [tx, ty] (16px単位)
-  // b=ベース o=オーバーレイ tall=[tx,ty]の16x32を上のマスにはみ出して描画(木など)
+  // タイルセット(PixelLab生成 world_ai.png)の座標マップ [tx, ty] (32px単位)
+  // b=ベース o=オーバーレイ tall=[tx,ty]の32x64を上のマスにはみ出して描画(木など)
   var TSDEF = {
     ".": { b: [0, 0] },
-    ",": { b: [0, 0], o: [6, 5] },
-    "G": { b: [0, 0], o: [6, 3], cave: { b: [26, 13], o: [11, 19] } },
-    "P": { b: [2, 1] },
-    "S": { b: [9, 12] },
-    "C": { b: [26, 13] },
-    "W": { b: [8, 8] },
-    "T": { b: [0, 0], tall: [0, 19] },
-    "F": { b: [0, 0], o: [1, 12] },
-    "M": { b: [10, 24], cave: { b: [35, 0] } },
-    "x": { b: [0, 0], o: [13, 14], cave: { b: [26, 13], o: [13, 14] } },
-    "R": { b: [58, 15] },
-    "B": { b: [58, 20] },
-    "#": { b: [35, 0] },
-    "_": { b: [25, 5] }
+    ",": { b: [0, 0], o: [4, 0] },
+    "G": { b: [0, 0], o: [5, 0], cave: { b: [0, 1], o: [6, 0] } },
+    "P": { b: [1, 0] },
+    "S": { b: [2, 0] },
+    "C": { b: [0, 1] },
+    "W": { b: [3, 0] },
+    "T": { b: [0, 0], tall: [7, 1] },
+    "F": { b: [0, 0], o: [7, 0] },
+    "M": { b: [1, 1], cave: { b: [1, 1] } },
+    "x": { b: [0, 0], o: [6, 0], cave: { b: [0, 1], o: [6, 0] } },
+    "R": { b: [4, 1] },
+    "B": { b: [5, 1] },
+    "#": { b: [3, 1] },
+    "_": { b: [2, 1] }
   };
 
   function drawTs(c, t, px, py) {
     var img = images.tileset;
-    c.drawImage(img, t[0] * 16, t[1] * 16, 16, 16, px, py, TILE, TILE);
+    c.drawImage(img, t[0] * 32, t[1] * 32, 32, 32, px, py, TILE, TILE);
   }
 
   function drawTile(c, ch, px, py, frame, outdoor) {
@@ -691,7 +691,7 @@ var SpriteLib = (function () {
       if (d.b) drawTs(c, d.b, px, py);
       if (d.o) drawTs(c, d.o, px, py);
       if (d.tall) {
-        c.drawImage(img, d.tall[0] * 16, d.tall[1] * 16, 16, 32, px, py - TILE, TILE, TILE * 2);
+        c.drawImage(img, d.tall[0] * 32, d.tall[1] * 32, 32, 64, px, py - TILE, TILE, TILE * 2);
       }
       if (ch === "W") {
         // なみの ゆらぎ

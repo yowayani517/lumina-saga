@@ -24,7 +24,7 @@ window.addEventListener("load", function () {
   ["grass", "forest", "cave"].forEach(function (b) {
     manifest.push(["bg_" + b, "assets/gm/backdrops/" + b + ".png"]);
   });
-  manifest.push(["tileset", "assets/gm/tilesets/limbusdev_world2.png"]);
+  manifest.push(["tileset", "assets/ai/tilesets/world_ai.png"]);
   manifest.push(["hero", "assets/people/hero.png"]);
   manifest.push(["npcsheet", "assets/people/npc.png"]);
   ["prof", "rival", "oldman", "oldwoman", "woman", "boy", "man", "champ", "leader1", "leader2", "leader3", "nurse", "girl"].forEach(function (k) {
