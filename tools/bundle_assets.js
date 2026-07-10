@@ -14,6 +14,9 @@ Object.keys(MONSTERS).forEach(function (id) {
 ["grass", "forest", "cave"].forEach(function (b) {
   entries.push(["bg_" + b, "assets/gm/backdrops/" + b + ".png"]);
 });
+["monster_center", "rock_gym", "electric_gym", "ghost_gym", "lumina_hall"].forEach(function (b) {
+  entries.push(["building_" + b, "assets/ai/buildings/" + b + ".png"]);
+});
 entries.push(["tileset", "assets/ai/tilesets/world_ai.png"]);
 entries.push(["hero", "assets/people/hero.png"]);
 entries.push(["npcsheet", "assets/people/npc.png"]);

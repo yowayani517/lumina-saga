@@ -43,7 +43,25 @@ def _to_img(o):
 
 def _extract_all(obj, out_dir, prefix=""):
     """レスポンス内の画像を全部保存"""
+    from PIL import Image
     n = 0
+
+    def save_raw_b64(b64, path):
+        nonlocal n
+        raw = base64.b64decode(b64.split(",")[-1])
+        try:
+            img = Image.open(io.BytesIO(raw)).convert("RGBA")
+        except Exception:
+            import math
+            side = int(math.isqrt(len(raw) // 4))
+            img = Image.frombytes("RGBA", (side, side), raw)
+        safe = path.strip("/").replace("/", "_")[:90] or f"img{n}"
+        # map-objects は compose が object.png を期待
+        out_name = "object.png" if safe.endswith("image") or safe == "image" else f"{prefix}{safe}.png"
+        if safe == "image" or safe.endswith("_image"):
+            out_name = "object.png"
+        img.save(os.path.join(out_dir, out_name))
+        n += 1
 
     def walk(o, path=""):
         nonlocal n
@@ -51,8 +69,13 @@ def _extract_all(obj, out_dir, prefix=""):
             if "base64" in o and isinstance(o["base64"], str) and len(o["base64"]) > 100:
                 img = _to_img(o)
                 safe = path.strip("/").replace("/", "_")[:90] or f"img{n}"
-                img.save(os.path.join(out_dir, f"{prefix}{safe}.png"))
+                out_name = "object.png" if "image" in safe else f"{prefix}{safe}.png"
+                img.save(os.path.join(out_dir, out_name))
                 n += 1
+                return
+            # 新API: image が生base64文字列
+            if "image" in o and isinstance(o["image"], str) and len(o["image"]) > 100:
+                save_raw_b64(o["image"], path + "/image")
                 return
             for k, v in o.items():
                 walk(v, path + "/" + str(k))

@@ -24,6 +24,9 @@ window.addEventListener("load", function () {
   ["grass", "forest", "cave"].forEach(function (b) {
     manifest.push(["bg_" + b, "assets/gm/backdrops/" + b + ".png"]);
   });
+  ["monster_center", "rock_gym", "electric_gym", "ghost_gym", "lumina_hall"].forEach(function (b) {
+    manifest.push(["building_" + b, "assets/ai/buildings/" + b + ".png"]);
+  });
   manifest.push(["tileset", "assets/ai/tilesets/world_ai.png"]);
   manifest.push(["hero", "assets/people/hero.png"]);
   manifest.push(["npcsheet", "assets/people/npc.png"]);

@@ -351,12 +351,38 @@ OverworldScene.prototype.draw = function (c) {
   var y0 = Math.max(0, Math.floor(camY / TILE));
   var x1 = Math.min(mw - 1, Math.ceil((camX + G.W) / TILE));
   var y1 = Math.min(mh - 1, Math.ceil((camY + G.H) / TILE));
-  c.fillStyle = map.outdoor ? "#1a1430" : "#000";
+  var bgFill = "#000";
+  if (map.outdoor) {
+    if (map.theme === "ghost") bgFill = "#10081c";
+    else if (map.theme === "electric") bgFill = "#0e1528";
+    else if (map.theme === "rock") bgFill = "#1a1610";
+    else bgFill = "#1a1430";
+  } else if (map.theme === "champion") bgFill = "#1a0808";
+  else if (map.theme === "ghost") bgFill = "#0a0614";
+  else if (map.theme === "hospital") bgFill = "#e8eef2";
+  c.fillStyle = bgFill;
   c.fillRect(0, 0, G.W, G.H);
   for (var y = y0; y <= y1; y++) {
     for (var x = x0; x <= x1; x++) {
-      SpriteLib.drawTile(c, rows[y][x], x * TILE - camX, y * TILE - camY, f, map.outdoor);
+      SpriteLib.drawTile(c, rows[y][x], x * TILE - camX, y * TILE - camY, f, map.outdoor, map.theme);
     }
+  }
+
+  // 一棟として制作した施設スプライト。タイルの反復ではなく完成した建築を描く。
+  c.imageSmoothingEnabled = false;
+  var landmarks = map.landmarks || [];
+  for (var li = 0; li < landmarks.length; li++) {
+    var landmark = landmarks[li];
+    var landmarkImage = SpriteLib.getImage(landmark.image);
+    if (!landmarkImage) continue;
+    var landmarkWidth = landmark.w || landmarkImage.width;
+    var landmarkHeight = landmark.h || landmarkImage.height;
+    var landmarkX = landmark.x * TILE + TILE / 2 - landmarkWidth / 2 - camX;
+    var landmarkY = landmark.y * TILE - landmarkHeight - camY;
+    if (landmarkX > G.W || landmarkY > G.H ||
+        landmarkX + landmarkWidth < 0 || landmarkY + landmarkHeight < 0) continue;
+    c.drawImage(landmarkImage, Math.round(landmarkX), Math.round(landmarkY),
+      landmarkWidth, landmarkHeight);
   }
 
   // NPC + プレイヤー を足元Y座標でソートして描画 (Y-sort: 奥行きが正しく重なるように)
@@ -402,6 +428,14 @@ OverworldScene.prototype.draw = function (c) {
       c.drawImage(sg, 0, 0, 16, 16, nx2, ny2 - 8, 32, 40);
     } else {
       SpriteLib.drawNPCImg(c, n2.sprite || "man", nx2, ny2, n2.dir);
+    }
+  }
+
+  // 木の樹冠を前景レイヤーとして再描画。
+  // 木の北側にいるキャラクターは葉に隠れ、木の中に乗って見えない。
+  for (var fy = y0; fy <= y1; fy++) {
+    for (var fx = x0; fx <= x1; fx++) {
+      SpriteLib.drawForegroundTile(c, rows[fy][fx], fx * TILE - camX, fy * TILE - camY);
     }
   }
 

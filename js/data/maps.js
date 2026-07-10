@@ -220,12 +220,17 @@ var MAPS = {
     name: "イシズエタウン",
     music: "town",
     outdoor: true,
+    theme: "rock",
+    landmarks: [
+      { image: "building_monster_center", x: 4, y: 5 },
+      { image: "building_rock_gym", x: 15, y: 4 }
+    ],
     tiles: [
       "TTTTTTTTTTTTTTTTTTTTTT",
-      "T....,.......RRRRRT..T",
-      "T.RRRRR......RRRRRT..T",
-      "T.RRRRR......BBDBBT..T",
-      "T.BBDBB.......P...T..T",
+      "T....,.......LLLLLT..T",
+      "T.LLLLL......LLLLLT..T",
+      "T.LLLLL......LLPLLT..T",
+      "T.LLPLL.......P...T..T",
       "T...P.........P...T..T",
       "T...P.........P...T..T",
       "T...PPPPPPPPPPP...T..T",
@@ -257,7 +262,7 @@ var MAPS = {
       },
       {
         id: "i_oldman", x: 3, y: 8, sprite: "oldman",
-        dialogue: ["モンスターセンターでは\nただで かいふくしてくれるぞ。", "あかい やねの たてものじゃよ。"]
+        dialogue: ["モンスターセンターでは\nただで かいふくしてくれるぞ。", "しろい びょういんのような\nたてものじゃよ。"]
       },
       {
         id: "i_girl", x: 16, y: 15, sprite: "girl",
@@ -278,6 +283,7 @@ var MAPS = {
     name: "モンスターセンター",
     music: "center",
     outdoor: false,
+    theme: "hospital",
     tiles: [
       "############",
       "#h________t#",
@@ -315,6 +321,7 @@ var MAPS = {
     name: "イシズエジム",
     music: "gym",
     outdoor: false,
+    theme: "rock",
     tiles: [
       "############",
       "#__x____x__#",
@@ -551,11 +558,16 @@ var MAPS = {
     name: "ライデンシティ",
     music: "town",
     outdoor: true,
+    theme: "electric",
+    landmarks: [
+      { image: "building_monster_center", x: 6, y: 4 },
+      { image: "building_electric_gym", x: 15, y: 4 }
+    ],
     tiles: [
       "TTTTTTTTTTTTTTTTTTTTTT",
-      "T...RRRRR....RRRRR..TT",
-      "T...RRRRR....RRRRR..TT",
-      "T...BBDBB....BBDBB..TT",
+      "T...LLLLL....LLLLL..TT",
+      "T...LLLLL....LLLLL..TT",
+      "T...LLPLL....LLPLL..TT",
       "T.....P........P....TT",
       "T.....P........P....TT",
       "T..PPPPPPPPPPPPPPPP.TT",
@@ -609,6 +621,7 @@ var MAPS = {
     name: "モンスターセンター",
     music: "center",
     outdoor: false,
+    theme: "hospital",
     tiles: [
       "############",
       "#h________t#",
@@ -646,6 +659,7 @@ var MAPS = {
     name: "ライデンジム",
     music: "gym",
     outdoor: false,
+    theme: "electric",
     tiles: [
       "############",
       "#_t__m___t_#",
@@ -809,11 +823,16 @@ var MAPS = {
     name: "ヨゾラシティ",
     music: "town",
     outdoor: true,
+    theme: "ghost",
+    landmarks: [
+      { image: "building_monster_center", x: 6, y: 4 },
+      { image: "building_ghost_gym", x: 15, y: 4 }
+    ],
     tiles: [
       "TTTTTTTTTTTTTTTTTTTTTT",
-      "T,..RRRRR....RRRRR..TT",
-      "T...RRRRR....RRRRR..TT",
-      "T...BBDBB....BBDBB..TT",
+      "T,..LLLLL....LLLLL..TT",
+      "T...LLLLL....LLLLL..TT",
+      "T...LLPLL....LLPLL..TT",
       "T.....P........P....TT",
       "T,....P........P....TT",
       "T..PPPPPPPPPPPPPPPP.TT",
@@ -872,6 +891,7 @@ var MAPS = {
     name: "モンスターセンター",
     music: "center",
     outdoor: false,
+    theme: "hospital",
     tiles: [
       "############",
       "#h________t#",
@@ -909,6 +929,7 @@ var MAPS = {
     name: "ヨゾラジム",
     music: "gym",
     outdoor: false,
+    theme: "ghost",
     tiles: [
       "############",
       "#_t__m___t_#",
@@ -990,12 +1011,15 @@ var MAPS = {
     name: "4ばんどうろ",
     music: "route",
     outdoor: true,
+    landmarks: [
+      { image: "building_lumina_hall", x: 7.5, y: 5 }
+    ],
     tiles: [
-      "TTTTTTTPPTTTTTTT",
-      "T.....,PP......T",
-      "T..GGG.PP.GGG..T",
-      "T..GGG.PP.GGG..T",
-      "T..GGG.PP.GGG..T",
+      "TTTTTTTTTTTTTTTT",
+      "T...TTTTTTTT...T",
+      "T...TTTTTTTT...T",
+      "T...TTTTTTTT...T",
+      "T......PP......T",
       "T......PP......T",
       "T..,...PP...,..T",
       "T......PP......T",
@@ -1074,7 +1098,7 @@ var MAPS = {
         }
       },
       {
-        id: "r4_rival", x: 7, y: 1, sprite: "rival",
+        id: "r4_rival", x: 7, y: 7, sprite: "rival",
         dialogue: ["レン『よお。』"],
         trainer: {
           name: "ライバルの レン",
@@ -1097,8 +1121,8 @@ var MAPS = {
     ],
     warps: [
       { x: 0, y: 24, to: "yozora", tx: 20, ty: 11 },
-      { x: 7, y: 0, to: "hall", tx: 6, ty: 13 },
-      { x: 8, y: 0, to: "hall", tx: 7, ty: 13 }
+      { x: 7, y: 4, to: "hall", tx: 6, ty: 13 },
+      { x: 8, y: 4, to: "hall", tx: 7, ty: 13 }
     ]
   },
 
@@ -1107,6 +1131,7 @@ var MAPS = {
     name: "ルミナホール",
     music: "gym",
     outdoor: false,
+    theme: "champion",
     tiles: [
       "##############",
       "#bb__mmmm__bb#",
@@ -1156,8 +1181,8 @@ var MAPS = {
       }
     ],
     warps: [
-      { x: 6, y: 14, to: "route4", tx: 7, ty: 1 },
-      { x: 7, y: 14, to: "route4", tx: 8, ty: 1 }
+      { x: 6, y: 14, to: "route4", tx: 7, ty: 5 },
+      { x: 7, y: 14, to: "route4", tx: 8, ty: 5 }
     ]
   },
 
@@ -1245,12 +1270,16 @@ var MAPS = {
     name: "ツキカゲむら",
     music: "town",
     outdoor: true,
+    theme: "moon",
+    landmarks: [
+      { image: "building_monster_center", x: 4, y: 5 }
+    ],
     tiles: [
       "TTTTTTTPTTTTTTTTTTTT",
       "T......P.....,.....T",
-      "T.RRRRR....RRRRR...T",
-      "T.RRRRR....RRRRR...T",
-      "T.BBDBB....BBDBB...T",
+      "T.LLLLL....RRRRR...T",
+      "T.LLLLL....RRRRR...T",
+      "T.LLPLL....BBDBB...T",
       "T...P........P.....T",
       "T...PPPPPPPPPP.....T",
       "T.WWWW...P....WWWW.T",
@@ -1294,6 +1323,7 @@ var MAPS = {
     name: "モンスターセンター",
     music: "center",
     outdoor: false,
+    theme: "hospital",
     tiles: [
       "############",
       "#h________t#",

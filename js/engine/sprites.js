@@ -656,10 +656,11 @@ var SpriteLib = (function () {
     }
   };
 
-  var WALKABLE = { ".": 1, ",": 1, "G": 1, "P": 1, "S": 1, "C": 1, "_": 1, "m": 1, "D": 1, "E": 1 };
+  var WALKABLE = { ".": 1, ",": 1, "G": 1, "P": 1, "S": 1, "C": 1, "_": 1, "m": 1, "D": 1, "E": 1, "A": 1, "Q": 1 };
 
   // タイルセット(PixelLab生成 world_ai.png)の座標マップ [tx, ty] (32px単位)
   // b=ベース o=オーバーレイ tall=[tx,ty]の32x64を上のマスにはみ出して描画(木など)
+  // row3: H/K + ジム屋根壁 (rock/elec/ghost)
   var TSDEF = {
     ".": { b: [0, 0] },
     ",": { b: [0, 0], o: [4, 0] },
@@ -675,7 +676,13 @@ var SpriteLib = (function () {
     "R": { b: [4, 1] },
     "B": { b: [5, 1] },
     "#": { b: [3, 1] },
-    "_": { b: [2, 1] }
+    "_": { b: [2, 1] },
+    "H": { b: [0, 3] },
+    "K": { b: [1, 3] }
+  };
+
+  var THEME_INDOOR = {
+    hospital: 1, rock: 1, electric: 1, ghost: 1, champion: 1
   };
 
   function drawTs(c, t, px, py) {
@@ -683,8 +690,385 @@ var SpriteLib = (function () {
     c.drawImage(img, t[0] * 32, t[1] * 32, 32, 32, px, py, TILE, TILE);
   }
 
-  function drawTile(c, ch, px, py, frame, outdoor) {
+  function drawDoorOverlay(c, x, y, style) {
+    style = style || "wood";
+    if (style === "hospital") {
+      // 白い壁に合うメタルドア + 小さな十字
+      c.fillStyle = "#78909c";
+      c.fillRect(x + 5, y + 5, 22, 27);
+      c.fillStyle = "#b0bec5";
+      c.fillRect(x + 7, y + 7, 18, 23);
+      c.fillStyle = "#eceff1";
+      c.fillRect(x + 8, y + 8, 7, 10);
+      c.fillStyle = "#ef5350";
+      c.fillRect(x + 14, y + 10, 4, 10);
+      c.fillRect(x + 11, y + 13, 10, 4);
+      c.fillStyle = "#546e7a";
+      c.fillRect(x + 20, y + 18, 3, 4);
+      return;
+    }
+    if (style === "rock") {
+      c.fillStyle = "#4e342e";
+      c.fillRect(x + 5, y + 5, 22, 27);
+      c.fillStyle = "#6d4c41";
+      c.fillRect(x + 7, y + 7, 18, 23);
+      c.fillStyle = "#8d6e63";
+      c.fillRect(x + 9, y + 9, 6, 8);
+      c.fillStyle = "#ffd54f";
+      c.fillRect(x + 20, y + 18, 3, 4);
+      return;
+    }
+    if (style === "electric") {
+      c.fillStyle = "#102027";
+      c.fillRect(x + 5, y + 5, 22, 27);
+      c.fillStyle = "#263238";
+      c.fillRect(x + 7, y + 7, 18, 23);
+      c.fillStyle = "#ffee58";
+      c.fillRect(x + 12, y + 10, 8, 12);
+      c.fillStyle = "#00e5ff";
+      c.fillRect(x + 20, y + 18, 3, 4);
+      return;
+    }
+    if (style === "ghost") {
+      c.fillStyle = "#1a0033";
+      c.fillRect(x + 5, y + 5, 22, 27);
+      c.fillStyle = "#4a148c";
+      c.fillRect(x + 7, y + 7, 18, 23);
+      c.fillStyle = "#e1bee7";
+      c.fillRect(x + 12, y + 11, 8, 10);
+      c.fillStyle = "#ce93d8";
+      c.fillRect(x + 20, y + 18, 3, 4);
+      return;
+    }
+    c.fillStyle = "#5d4037";
+    c.fillRect(x + 4, y + 4, 24, 28);
+    c.fillStyle = "#8d6e63";
+    c.fillRect(x + 7, y + 7, 18, 25);
+    c.fillStyle = "#a1887f";
+    c.fillRect(x + 9, y + 9, 6, 8);
+    c.fillStyle = "#ffd54f";
+    c.fillRect(x + 21, y + 18, 3, 4);
+    c.fillStyle = "#3e2723";
+    c.fillRect(x + 4, y + 4, 24, 2);
+  }
+
+  // --- テーマ建物: 家(R/B)と同じくタイルセット優先 ---
+  var GYM_TS = {
+    rock: { Y: [2, 3], Z: [3, 3] },
+    electric: { Y: [4, 3], Z: [5, 3] },
+    ghost: { Y: [6, 3], Z: [7, 3] }
+  };
+
+  function fillTile(c, x, y, col) {
+    c.fillStyle = col;
+    c.fillRect(x, y, TILE, TILE);
+  }
+
+  function drawThemedBuilding(c, ch, px, py, theme) {
     var img = images.tileset;
+    var t = (theme === "electric" || theme === "ghost") ? theme : "rock";
+    var g = GYM_TS[t];
+
+    if (ch === "H") {
+      if (img) drawTs(c, [0, 3], px, py);
+      else fillTile(c, px, py, "#eceff1");
+      return;
+    }
+    if (ch === "K") {
+      if (img) drawTs(c, [1, 3], px, py);
+      else fillTile(c, px, py, "#fafafa");
+      return;
+    }
+    if (ch === "A") {
+      if (img) drawTs(c, [1, 3], px, py);
+      else fillTile(c, px, py, "#fafafa");
+      drawDoorOverlay(c, px, py, "hospital");
+      return;
+    }
+    if (ch === "Y") {
+      if (img) drawTs(c, g.Y, px, py);
+      else fillTile(c, px, py, t === "electric" ? "#263238" : t === "ghost" ? "#311b92" : "#78909c");
+      return;
+    }
+    if (ch === "Z") {
+      if (img) drawTs(c, g.Z, px, py);
+      else fillTile(c, px, py, t === "electric" ? "#1a237e" : t === "ghost" ? "#4a148c" : "#8d6e63");
+      return;
+    }
+    if (ch === "Q") {
+      if (img) drawTs(c, g.Z, px, py);
+      else fillTile(c, px, py, t === "electric" ? "#1a237e" : t === "ghost" ? "#4a148c" : "#8d6e63");
+      drawDoorOverlay(c, px, py, t);
+    }
+  }
+
+  // --- テーマ内装 ---
+  function themedFloor(c, x, y, theme) {
+    if (theme === "hospital") {
+      c.fillStyle = "#f5f5f5"; c.fillRect(x, y, TILE, TILE);
+      c.fillStyle = "#e0e0e0";
+      c.fillRect(x, y + 15, TILE, 1); c.fillRect(x + 15, y, 1, TILE);
+      return;
+    }
+    if (theme === "rock") {
+      c.fillStyle = "#6d5d54"; c.fillRect(x, y, TILE, TILE);
+      c.fillStyle = "#5d4e47";
+      var r = h2(x / TILE, y / TILE);
+      c.fillRect(x + (r % 5) * 5, y + ((r * 3) % 5) * 5, 8, 6);
+      return;
+    }
+    if (theme === "electric") {
+      c.fillStyle = "#263238"; c.fillRect(x, y, TILE, TILE);
+      c.fillStyle = "#37474f";
+      c.fillRect(x + 2, y + 2, 12, 12); c.fillRect(x + 16, y + 16, 12, 12);
+      c.fillStyle = "rgba(255,238,88,0.13)";
+      c.fillRect(x, y + 14, TILE, 2);
+      return;
+    }
+    if (theme === "ghost") {
+      c.fillStyle = "#1a1428"; c.fillRect(x, y, TILE, TILE);
+      c.fillStyle = "#2a1f3d";
+      c.fillRect(x + 4, y + 4, 10, 10); c.fillRect(x + 18, y + 16, 8, 8);
+      return;
+    }
+    if (theme === "champion") {
+      c.fillStyle = "#2c1810"; c.fillRect(x, y, TILE, TILE);
+      c.fillStyle = "#3e2723";
+      c.fillRect(x + 1, y + 1, 14, 14); c.fillRect(x + 16, y + 16, 14, 14);
+      c.fillStyle = "#c9a227";
+      c.fillRect(x, y, TILE, 1); c.fillRect(x, y + 31, TILE, 1);
+      return;
+    }
+    floorBase(c, x, y);
+  }
+
+  function themedWall(c, x, y, theme) {
+    if (theme === "hospital") {
+      c.fillStyle = "#eceff1"; c.fillRect(x, y, TILE, TILE);
+      c.fillStyle = "#b0bec5"; c.fillRect(x, y + 24, TILE, 8);
+      c.fillStyle = "#ffffff"; c.fillRect(x, y, TILE, 4);
+      c.fillStyle = "#81d4fa"; c.fillRect(x + 10, y + 8, 12, 10);
+      return;
+    }
+    if (theme === "rock") {
+      c.fillStyle = "#5d4037"; c.fillRect(x, y, TILE, TILE);
+      c.fillStyle = "#4e342e";
+      c.fillRect(x + 2, y + 2, 14, 12); c.fillRect(x + 14, y + 16, 16, 14);
+      c.fillStyle = "#8d6e63"; c.fillRect(x, y, TILE, 3);
+      return;
+    }
+    if (theme === "electric") {
+      c.fillStyle = "#0d47a1"; c.fillRect(x, y, TILE, TILE);
+      c.fillStyle = "#1565c0"; c.fillRect(x + 2, y + 2, TILE - 4, 20);
+      c.fillStyle = "#ffee58"; c.fillRect(x, y + 26, TILE, 3);
+      c.fillStyle = "#00e5ff"; c.fillRect(x + 12, y + 8, 8, 10);
+      return;
+    }
+    if (theme === "ghost") {
+      c.fillStyle = "#12081f"; c.fillRect(x, y, TILE, TILE);
+      c.fillStyle = "#4a148c"; c.fillRect(x + 2, y + 2, TILE - 4, 22);
+      c.fillStyle = "#7e57c2"; c.fillRect(x, y, TILE, 3);
+      c.fillStyle = "#e1bee7";
+      c.globalAlpha = 0.35;
+      c.beginPath(); c.arc(x + 16, y + 14, 6, 0, 7); c.fill();
+      c.globalAlpha = 1;
+      return;
+    }
+    if (theme === "champion") {
+      c.fillStyle = "#4a0e0e"; c.fillRect(x, y, TILE, TILE);
+      c.fillStyle = "#6a1b1b"; c.fillRect(x + 2, y + 4, TILE - 4, 20);
+      c.fillStyle = "#c9a227"; c.fillRect(x, y, TILE, 4); c.fillRect(x, y + 28, TILE, 4);
+      c.fillStyle = "#ffd54f"; c.fillRect(x + 14, y + 12, 4, 8);
+      return;
+    }
+    TileArt["#"](c, x, y);
+  }
+
+  function themedCarpet(c, x, y, theme) {
+    themedFloor(c, x, y, theme);
+    if (theme === "hospital") {
+      c.fillStyle = "#bbdefb"; c.fillRect(x + 1, y + 1, TILE - 2, TILE - 2);
+      c.fillStyle = "#e3f2fd"; c.fillRect(x + 4, y + 4, TILE - 8, TILE - 8);
+      return;
+    }
+    if (theme === "rock") {
+      c.fillStyle = "#bf360c"; c.fillRect(x + 1, y + 1, TILE - 2, TILE - 2);
+      c.fillStyle = "#e64a19"; c.fillRect(x + 4, y + 4, TILE - 8, TILE - 8);
+      c.fillStyle = "#ffab91"; c.fillRect(x + 8, y + 8, TILE - 16, TILE - 16);
+      return;
+    }
+    if (theme === "electric") {
+      c.fillStyle = "#f9a825"; c.fillRect(x + 1, y + 1, TILE - 2, TILE - 2);
+      c.fillStyle = "#212121"; c.fillRect(x + 4, y + 4, TILE - 8, TILE - 8);
+      c.fillStyle = "#ffee58"; c.fillRect(x + 8, y + 8, TILE - 16, TILE - 16);
+      return;
+    }
+    if (theme === "ghost") {
+      c.fillStyle = "#4a148c"; c.fillRect(x + 1, y + 1, TILE - 2, TILE - 2);
+      c.fillStyle = "#1a0033"; c.fillRect(x + 4, y + 4, TILE - 8, TILE - 8);
+      c.fillStyle = "#ce93d8"; c.fillRect(x + 8, y + 8, TILE - 16, TILE - 16);
+      return;
+    }
+    if (theme === "champion") {
+      c.fillStyle = "#b71c1c"; c.fillRect(x + 1, y + 1, TILE - 2, TILE - 2);
+      c.fillStyle = "#c9a227"; c.fillRect(x + 3, y + 3, TILE - 6, TILE - 6);
+      c.fillStyle = "#880e0e"; c.fillRect(x + 6, y + 6, TILE - 12, TILE - 12);
+      return;
+    }
+    TileArt.m(c, x, y);
+  }
+
+  function themedCounter(c, x, y, theme) {
+    themedFloor(c, x, y, theme);
+    if (theme === "hospital") {
+      c.fillStyle = "#eceff1"; c.fillRect(x, y + 6, TILE, 26);
+      c.fillStyle = "#ffffff"; c.fillRect(x, y + 6, TILE, 6);
+      c.fillStyle = "#ef5350"; c.fillRect(x + 12, y + 8, 8, 2);
+      c.fillStyle = "#90a4ae"; c.fillRect(x, y + 16, TILE, 2);
+      return;
+    }
+    c.fillStyle = "#8d6e63"; c.fillRect(x, y + 6, TILE, 26);
+    c.fillStyle = "#a1887f"; c.fillRect(x, y + 6, TILE, 6);
+    c.fillStyle = "#bcaaa4"; c.fillRect(x, y + 6, TILE, 2);
+    c.fillStyle = "#6d4c41"; c.fillRect(x, y + 16, TILE, 2);
+  }
+
+  function themedDesk(c, x, y, theme) {
+    themedFloor(c, x, y, theme);
+    if (theme === "electric") {
+      c.fillStyle = "#455a64"; c.fillRect(x + 2, y + 6, 28, 24);
+      c.fillStyle = "#00e5ff"; c.fillRect(x + 2, y + 6, 28, 4);
+      c.fillStyle = "#ffee58"; c.fillRect(x + 8, y + 16, 16, 8);
+      return;
+    }
+    if (theme === "ghost") {
+      c.fillStyle = "#4a148c"; c.fillRect(x + 2, y + 6, 28, 24);
+      c.fillStyle = "#7e57c2"; c.fillRect(x + 2, y + 6, 28, 4);
+      c.fillStyle = "#e1bee7"; c.fillRect(x + 8, y + 16, 16, 8);
+      return;
+    }
+    if (theme === "champion") {
+      c.fillStyle = "#3e2723"; c.fillRect(x + 2, y + 6, 28, 24);
+      c.fillStyle = "#c9a227"; c.fillRect(x + 2, y + 6, 28, 4);
+      c.fillStyle = "#ffd54f"; c.fillRect(x + 8, y + 16, 16, 8);
+      return;
+    }
+    if (theme === "hospital") {
+      c.fillStyle = "#b0bec5"; c.fillRect(x + 2, y + 6, 28, 24);
+      c.fillStyle = "#eceff1"; c.fillRect(x + 2, y + 6, 28, 6);
+      c.fillStyle = "#4dd0e1"; c.fillRect(x + 8, y + 18, 10, 6);
+      c.fillStyle = "#66bb6a"; c.fillRect(x + 21, y + 18, 3, 3);
+      c.fillStyle = "#ef5350"; c.fillRect(x + 21, y + 23, 3, 3);
+      return;
+    }
+    TileArt.t(c, x, y);
+  }
+
+  function themedHeal(c, x, y, f, theme) {
+    themedFloor(c, x, y, theme || "hospital");
+    c.fillStyle = "#eceff1";
+    c.fillRect(x + 3, y + 4, 26, 26);
+    c.fillStyle = "#cfd8dc";
+    c.fillRect(x + 3, y + 24, 26, 6);
+    var on = Math.floor(f / 25) % 2;
+    c.fillStyle = on ? "#ef5350" : "#b71c1c";
+    c.fillRect(x + 13, y + 8, 6, 14);
+    c.fillRect(x + 9, y + 12, 14, 6);
+    c.fillStyle = on ? "#66bb6a" : "#2e7d32";
+    c.fillRect(x + 6, y + 25, 4, 3);
+    c.fillRect(x + 22, y + 25, 4, 3);
+  }
+
+  function themedShelf(c, x, y, theme) {
+    if (theme === "champion") {
+      c.fillStyle = "#3e2723"; c.fillRect(x, y, TILE, TILE);
+      c.fillStyle = "#c9a227";
+      c.fillRect(x + 2, y + 4, 28, 11); c.fillRect(x + 2, y + 18, 28, 11);
+      var cols = ["#b71c1c", "#ffd54f", "#efebe9", "#6a1b1b", "#c9a227"];
+      var r = h2(x / TILE, y / TILE);
+      for (var i = 0; i < 6; i++) {
+        c.fillStyle = cols[(r + i) % 5];
+        c.fillRect(x + 4 + i * 4, y + 6, 3, 8);
+        c.fillStyle = cols[(r + i + 2) % 5];
+        c.fillRect(x + 4 + i * 4, y + 20, 3, 8);
+      }
+      return;
+    }
+    if (theme === "ghost") {
+      c.fillStyle = "#1a0033"; c.fillRect(x, y, TILE, TILE);
+      c.fillStyle = "#4a148c";
+      c.fillRect(x + 2, y + 4, 28, 11); c.fillRect(x + 2, y + 18, 28, 11);
+      return;
+    }
+    TileArt.b(c, x, y);
+  }
+
+  function applyTownTint(c, px, py, theme) {
+    // ごく弱い色味のみ（柵まわりとの色ずれを出さない）
+    if (theme === "rock") {
+      c.fillStyle = "rgba(120, 100, 80, 0.06)";
+      c.fillRect(px, py, TILE, TILE);
+    } else if (theme === "electric") {
+      c.fillStyle = "rgba(40, 60, 120, 0.05)";
+      c.fillRect(px, py, TILE, TILE);
+    } else if (theme === "ghost") {
+      c.fillStyle = "rgba(60, 30, 100, 0.08)";
+      c.fillRect(px, py, TILE, TILE);
+    } else if (theme === "moon") {
+      c.fillStyle = "rgba(40, 60, 100, 0.05)";
+      c.fillRect(px, py, TILE, TILE);
+    }
+  }
+
+  function shouldTintGround(ch) {
+    // くさベースが見えるタイルはすべて同じ色味に（柵・木の下だけ明るくなるのを防ぐ）
+    return ch === "." || ch === "," || ch === "G" || ch === "P" || ch === "F" ||
+      ch === "T" || ch === "x" || ch === "L";
+  }
+
+  function drawTile(c, ch, px, py, frame, outdoor, theme) {
+    theme = theme || "default";
+    var img = images.tileset;
+
+    // テーマ建物
+    if (ch === "H" || ch === "K" || ch === "A" || ch === "Y" || ch === "Z" || ch === "Q") {
+      drawThemedBuilding(c, ch, px, py, theme);
+      return;
+    }
+
+    // テーマ内装
+    if (!outdoor && THEME_INDOOR[theme]) {
+      if (ch === "_") { themedFloor(c, px, py, theme); return; }
+      if (ch === "#") { themedWall(c, px, py, theme); return; }
+      if (ch === "m") { themedCarpet(c, px, py, theme); return; }
+      if (ch === "c") { themedCounter(c, px, py, theme); return; }
+      if (ch === "t") { themedDesk(c, px, py, theme); return; }
+      if (ch === "h") { themedHeal(c, px, py, frame, theme); return; }
+      if (ch === "b") { themedShelf(c, px, py, theme); return; }
+      if (ch === "E") {
+        themedFloor(c, px, py, theme);
+        c.fillStyle = "#9e9e9e";
+        c.fillRect(px + 3, py + 3, TILE - 6, TILE - 6);
+        c.fillStyle = "#757575";
+        c.fillRect(px + 6, py + 6, TILE - 12, TILE - 12);
+        c.fillStyle = "#eeeeee";
+        c.beginPath();
+        c.moveTo(px + 16, py + 24); c.lineTo(px + 10, py + 14); c.lineTo(px + 22, py + 14);
+        c.fill();
+        return;
+      }
+      if (ch === "x") {
+        themedFloor(c, px, py, theme);
+        c.fillStyle = theme === "electric" ? "#90a4ae" : theme === "ghost" ? "#7e57c2" : "#9e9e9e";
+        c.beginPath(); c.arc(px + 16, py + 18, 12, 0, 7); c.fill();
+        c.fillStyle = theme === "ghost" ? "#b39ddb" : "#bdbdbd";
+        c.beginPath(); c.arc(px + 13, py + 15, 7, 0, 7); c.fill();
+        c.fillStyle = "#757575";
+        c.fillRect(px + 8, py + 24, 16, 4);
+        return;
+      }
+    }
+
     var def = TSDEF[ch];
     if (img && def) {
       var d = (!outdoor && def.cave) ? def.cave : def;
@@ -694,34 +1078,37 @@ var SpriteLib = (function () {
         c.drawImage(img, d.tall[0] * 32, d.tall[1] * 32, 32, 64, px, py - TILE, TILE, TILE * 2);
       }
       if (ch === "W") {
-        // なみの ゆらぎ
         var ph = Math.floor(frame / 30) % 2;
         var r = h2(px / TILE, py / TILE) % 3;
         c.fillStyle = "rgba(255,255,255,0.22)";
         c.fillRect(px + 4 + ph * 3, py + 7 + r * 3, 9, 2);
         c.fillRect(px + 18 - ph * 3, py + 22 - r * 3, 8, 2);
       }
+      if (outdoor && shouldTintGround(ch)) {
+        applyTownTint(c, px, py, theme);
+      }
       return;
     }
     if (img && ch === "D") {
-      // とびら: タイルセットの かべ + プロシージャルのドア
       drawTs(c, TSDEF.B.b, px, py);
-      drawDoorOverlay(c, px, py);
+      drawDoorOverlay(c, px, py, "wood");
       return;
     }
     var fn = TileArt[ch] || TileArt["."];
     fn(c, px, py, frame, outdoor);
+    if (outdoor && shouldTintGround(ch)) {
+      applyTownTint(c, px, py, theme);
+    }
   }
 
-  function drawDoorOverlay(c, x, y) {
-    c.fillStyle = "#5d4037";
-    c.fillRect(x + 4, y + 4, 24, 28);
-    c.fillStyle = "#8d6e63";
-    c.fillRect(x + 7, y + 7, 18, 25);
-    c.fillStyle = "#ffd54f";
-    c.fillRect(x + 21, y + 18, 3, 4);
-    c.fillStyle = "#3e2723";
-    c.fillRect(x + 4, y + 4, 24, 2);
+  // 背の高い木は、足元のタイルとは別に前景としても描く。
+  // 木の北側のマスに立った主人公/NPCが、葉の上に浮いて見えないためのレイヤー。
+  function drawForegroundTile(c, ch, px, py) {
+    if (ch !== "T") return;
+    var img = images.tileset;
+    if (img) {
+      c.drawImage(img, 7 * 32, 1 * 32, 32, 64, px, py - TILE, TILE, TILE * 2);
+    }
   }
 
   function drawBall(c, x, y) {
@@ -743,6 +1130,7 @@ var SpriteLib = (function () {
     TILE: TILE,
     WALKABLE: WALKABLE,
     drawTile: drawTile,
+    drawForegroundTile: drawForegroundTile,
     npcCanvas: npcCanvas,
     heroCanvas: heroCanvas,
     drawHero: drawHero,

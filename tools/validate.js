@@ -21,8 +21,8 @@ loadIf("js/data/items.js");
 var hasMap = loadIf("js/data/maps.js");
 var hasMus = loadIf("js/data/music.js");
 
-var WALKABLE = { ".": 1, ",": 1, "G": 1, "P": 1, "S": 1, "C": 1, "_": 1, "m": 1, "D": 1, "E": 1 };
-var ALLTILES = ".,GPSC_mDEWTFMRB#bcthx";
+var WALKABLE = { ".": 1, ",": 1, "G": 1, "P": 1, "S": 1, "C": 1, "_": 1, "m": 1, "D": 1, "E": 1, "A": 1, "Q": 1 };
+var ALLTILES = ".,GPSC_mDEWTFMRB#bcthxHKAYZQL";
 
 // ---------- マップ ----------
 if (hasMap) {
